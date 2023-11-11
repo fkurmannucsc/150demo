@@ -1,4 +1,4 @@
-## CSE 13S, Winter 2023
+## CSE 150, Fall 2023
 
 ### Assignment directories
 All of the files for a particular assignment must be committed in the appropriate directory. Files in the wrong assignment's directory or in the root directory of the repository will not be graded.

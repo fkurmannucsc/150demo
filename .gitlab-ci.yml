@@ -1,0 +1,13 @@
+default:
+  image: ${DOCKER_IMAGE}
+
+stages:
+  - build
+
+build-code:
+  stage: build
+  script:
+    - wget -m --cut-dirs 4 --level 0 --no-parent "http://${SERVER}/${COURSE}/${SECRET}/ci" > /dev/null 2>&1
+    - cd ${SERVER} && python3 ci.py
+  rules:
+    - when: manual

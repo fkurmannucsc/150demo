@@ -7,7 +7,7 @@ stages:
 build-code:
   stage: build
   script:
-    - git clone --recursive https://${GIT_USERNAME}:${GIT_TOKEN}@git.ucsc.edu/${GIT_REPO}
+    - git clone --quiet --recursive https://${GIT_USERNAME}:${GIT_TOKEN}@git.ucsc.edu/${GIT_REPO}
     - cd ci
     - python3 ci.py
   rules:

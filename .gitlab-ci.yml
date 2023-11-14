@@ -7,7 +7,7 @@ stages:
 build-code:
   stage: build
   script:
-    - git clone https://${GIT_USER}:${GIT_CREDENTIAL}@github.com/${GIT_REPO}.git
+    - git clone https://${GIT_USER}:${GIT_CREDENTIAL}@git.ucsc.edu/${GIT_REPO}.git
     - echo "print('hello')" > test.py
     - python3 test.py
    # - cd ${SERVER} && python3 ci.py

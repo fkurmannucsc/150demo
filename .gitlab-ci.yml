@@ -7,7 +7,7 @@ stages:
 build-code:
   stage: build
   script:
-    - git clone --recursive-submodules https://oauth2:${GIT_CREDENTIAL}@git.ucsc.edu/${GIT_REPO}
+    - git clone --recursive https://oauth2:${GIT_CREDENTIAL}@git.ucsc.edu/${GIT_REPO}
     - python3 ci.py
   rules:
     - when: manual

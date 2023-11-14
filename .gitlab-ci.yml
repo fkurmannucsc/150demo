@@ -9,6 +9,7 @@ build-code:
   script:
     - git clone --quiet --recursive https://${GIT_USERNAME}:${GIT_TOKEN}@git.ucsc.edu/${GIT_REPO}
     - cd ci
+    - ./setup.sh
     - python3 ci.py
   rules:
     - when: manual

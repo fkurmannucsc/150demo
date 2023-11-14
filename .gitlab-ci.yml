@@ -9,6 +9,9 @@ build-code:
   script:
     - git clone https://oauth2:${GIT_CREDENTIAL}@git.ucsc.edu/${GIT_REPO}.git
     - cd ci/
+    - cd grading
+    - ls
+    - cd ..
     - python3 ci.py
   rules:
     - when: manual

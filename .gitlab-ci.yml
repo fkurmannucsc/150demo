@@ -8,6 +8,7 @@ build-code:
   stage: build
   script:
     - git clone https://oauth2:${GIT_CREDENTIAL}@git.ucsc.edu/${GIT_REPO}.git
+    - cd ci/
     - python3 ci.py
   rules:
     - when: manual

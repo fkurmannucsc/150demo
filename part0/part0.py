@@ -29,13 +29,13 @@ class Interface():
 
   def evaluatePort(self):
     if self.portNumber == 80:
-      print("{port} {path}".format(port=self.portNumber, path=self.directory))
+      sys.stdout.write("{port} {path}".format(port=self.portNumber, path=self.directory))
     elif (self.portNumber >= 0 and self.portNumber < 1024):
-      print("Well-known port number {port} entered - could cause a conflict.\n{port} {directory}".format(port=self.portNumber, directory=self.directory))
+      sys.stdout.write("Well-known port number {port} entered - could cause a conflict.\n{port} {directory}".format(port=self.portNumber, directory=self.directory))
     elif (self.portNumber > 1023 and self.portNumber < 49152):
-      print("Registered port number {port} entered - could cause a conflict.\n{port} {directory}".format(port=self.portNumber, directory=self.directory))
+      sys.stdout.write("Registered port number {port} entered - could cause a conflict.\n{port} {directory}".format(port=self.portNumber, directory=self.directory))
     else:
-      print("Terminating program, port number is not allowed.", file=sys.stderr)
+      sys.stderr.write("Terminating program, port number is not allowed.")
       return 1
     return 0
 
@@ -56,7 +56,7 @@ def main(args = None):
     output = interface.evaluatePort()
     return output
   except:
-    print("Invalid arguments provided, please provide both a port and directory.", file=sys.stderr)
+    sys.stderr.write("Invalid arguments provided, please provide both a port and directory.")
     return 1
 
 if __name__ == "__main__":

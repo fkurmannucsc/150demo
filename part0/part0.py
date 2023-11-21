@@ -13,7 +13,7 @@ class CommandLine():
       usage = 'python3 part0.py -p [PORT] -d [DIRECTORY]' 
     )
     
-    self.parser.add_argument('-p', '--port', type=int, default=80, action = 'store', help='Port number')
+    self.parser.add_argument('-p', '--port', type=int, action = 'store', help='Port number')
     self.parser.add_argument('-d', '--directory', action = 'store', help='Absolute path to directory')
 
     if inOpts is None :
@@ -29,9 +29,9 @@ class Interface():
   def evaluatePort(self):
     if self.portNumber == 80:
       print("{port} {path}".format(port=self.portNumber, path=self.directory))
-    elif self.portNumber > 0 and self.portNumber < 1024:
+    elif (self.portNumber >= 0 and self.portNumber < 1024):
       print("Well known port number {port} entered - could cause a conflict.\n\n{directory}".format(port=self.portNumber, directory=self.directory))
-    elif self.portNumber < 49152:
+    elif (self.portNumber > 1023 and self.portNumber < 49152):
       print("Registered port number {port} entered - could cause a conflict.\n\n{directory}".format(port=self.portNumber, directory=self.directory))
     else:
       print("Terminating program, port number is not allowed.")
@@ -39,7 +39,7 @@ class Interface():
     return 0
 
 # Main
-""" """
+""" Main method, parse input and call evaluation function. """
 def main(args = None):
   # Get commands
   if args == None:
@@ -51,8 +51,12 @@ def main(args = None):
   interface = Interface(commandInput.args.port, commandInput.args.directory)
 
   # Search for port numbers
-  output = interface.evaluatePort()
-  return output
+  try: 
+    output = interface.evaluatePort()
+    return output
+  except:
+    print("Invalid arguments provided, please provide both a port and directory.")
+    return 1
 
 if __name__ == "__main__":
  main()

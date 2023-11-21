@@ -35,7 +35,7 @@ class Interface():
     elif (self.portNumber > 1023 and self.portNumber < 49152):
       print("Registered port number {port} entered - could cause a conflict.\n{port} {directory}".format(port=self.portNumber, directory=self.directory))
     else:
-      print("Terminating program, port number is not allowed.", file=sys.stderr)
+      sys.stderr.write("Terminating program, port number is not allowed.")
       exit(1)
     return 0
 

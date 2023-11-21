@@ -35,8 +35,9 @@ class Interface():
     elif (self.portNumber > 1023 and self.portNumber < 49152):
       print("Registered port number {port} entered - could cause a conflict.\n{port} {directory}".format(port=self.portNumber, directory=self.directory))
     else:
-      sys.stderr.write("Terminating program, port number is not allowed.")
-      exit(1)
+      print("Terminating program, port number is not allowed.", file=sys.stderr)
+      sys.exit(1)
+      
     return 0
 
 # Main
@@ -51,13 +52,14 @@ def main(args = None):
   # Greate Interface object
   interface = Interface(commandInput.args.port, commandInput.args.directory)
 
-  # Search for port numbers
-  try: 
-    output = interface.evaluatePort()
-    return output
-  except:
+  if commandInput.args.port == None or commandInput.args.directory == None:
     print("Invalid arguments provided, please provide both a port and directory.", file=sys.stderr)
-    exit(1)
+    sys.exit(1)
+
+  # Search for port numbers
+  output = interface.evaluatePort()
+  
+  return output
 
 if __name__ == "__main__":
  main()

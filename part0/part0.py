@@ -1,4 +1,5 @@
 import argparse
+import sys
 
 # CommandLine
 """ Handle the command line arguments. """
@@ -34,7 +35,7 @@ class Interface():
     elif (self.portNumber > 1023 and self.portNumber < 49152):
       print("Registered port number {port} entered - could cause a conflict.\n\n{directory}".format(port=self.portNumber, directory=self.directory))
     else:
-      print("Terminating program, port number is not allowed.")
+      print("Terminating program, port number is not allowed.", file=sys.stderr)
       return 1
     return 0
 
@@ -55,7 +56,7 @@ def main(args = None):
     output = interface.evaluatePort()
     return output
   except:
-    print("Invalid arguments provided, please provide both a port and directory.")
+    print("Invalid arguments provided, please provide both a port and directory.", file=sys.stderr)
     return 1
 
 if __name__ == "__main__":

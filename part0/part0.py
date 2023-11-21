@@ -31,9 +31,9 @@ class Interface():
     if self.portNumber == 80:
       print("{port} {path}".format(port=self.portNumber, path=self.directory))
     elif (self.portNumber >= 0 and self.portNumber < 1024):
-      print("Well-known port number {port} entered -  could cause a conflict.\n{directory}".format(port=self.portNumber, directory=self.directory))
+      print("Well-known port number {port} entered - could cause a conflict.\n{port} {directory}".format(port=self.portNumber, directory=self.directory))
     elif (self.portNumber > 1023 and self.portNumber < 49152):
-      print("Registered port number {port} entered -  could cause a conflict.\n{directory}".format(port=self.portNumber, directory=self.directory))
+      print("Registered port number {port} entered - could cause a conflict.\n{port} {directory}".format(port=self.portNumber, directory=self.directory))
     else:
       print("Terminating program, port number is not allowed.", file=sys.stderr)
       return 1

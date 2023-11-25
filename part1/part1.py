@@ -72,21 +72,19 @@ Connection: {connection}\r
 
   """ Function to make the http res object. """
   def makeResponse(self, code, server):
-    templateResponse = '''HTTP/1.1 {code} {description}\r
-Date: {date}\r
-Server: {server}\r
+    templateResponse = '''HTTP/1.1 {code} {description}\r\n
+Content-Length: {length}\r\n
 Last-Modified: {lastMod}\r
-Content-Length: {length}\r
+Date: {date}\r
 Content-Type: {type}\r
 \r
-{body}'''.format( code=code, 
-                  description=self.responses[code], 
-                  date=self.currentTime, 
-                  server=server, 
-                  lastMod=self.lastMod,
-                  length=self.length,
-                  type=self.type,
-                  body=self.body)
+{body}'''.format(code=code, 
+                description=self.responses[code], 
+                date=self.currentTime, 
+                lastMod=self.lastMod,
+                length=self.length,
+                type=self.type,
+                body=self.body)
     return templateResponse
   
   """ Function to get data and metadata to fill http response object with a file's content. """

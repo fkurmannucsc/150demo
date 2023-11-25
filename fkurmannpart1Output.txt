@@ -1,0 +1,20 @@
+HTTP/1.1 200 OK
+Date: Wed, 22 Nov 2023 21:15:35 GMT
+Server: FabriceKurmann
+Last-Modified: Mon, 20 Nov 2023 23:04:31 GMT
+Content-Length: 218
+Content-Type: text/html
+
+<!doctype html>
+<html>
+<head>
+<title>Hellow World</title>
+<meta name="description" content="Hello World">
+<meta name="keywords" content="">
+</head>
+
+<body>
+  Hello World, I am Fabrice Kurmann, fkurmann
+</body>
+</html>
+

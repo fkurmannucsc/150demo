@@ -1,8 +1,3 @@
-Include a brief overview of the script's functionality, usage instructions with examples of correct
-and incorrect input, and a description of how the script handles invalid port numbers. This
-information will guide users in running the script and understanding its output.
-
-
 This script returns a different output to stdout based on the port number given in stdin.
 Output is either just the path if port 80 is given, or a message about well known, registered, 
 our unregistered port numbers. 

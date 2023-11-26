@@ -90,7 +90,7 @@ Last-Modified: {lastMod}\r
     return templateResponse
   
   def makeResponseSmall(self, code):
-    templateResponse = 'HTTP/1.1 200 OK\r'
+    templateResponse = 'HTTP/1.1 200 OK\r\n'
     return templateResponse
   
   """ Function to get data and metadata to fill http response object with a file's content. """
@@ -191,7 +191,7 @@ def main(args = None):
   testRes = HTTPBuilder.makeResponseSmall(200)
 
   # print(testReq)
-  print(testRes)
+  sys.stdout.write('HTTP/1.1 200 OK\r\n')
   
   return 0
 

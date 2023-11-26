@@ -90,21 +90,25 @@ Content-Type: {type}\r
   """ Function to get data and metadata to fill http response object with a file's content. """
   def getFileData(self, path):
     # Get and store the file TODO, break up into chunks
-    f = open(path+"HelloWorld.html", "r")
-    self.body = f.read()
-    f.close()
+    file = open('part1/' + "helloWorld.html", "r")
+    self.body = file.read()
+    file.close()
+
+    newFile = open(path + "/helloWorld.html", "w")
+    newFile.write(self.body)
+    newFile.close()
 
     # Get current time and last modified times, translate them to HTTP format
     now = datetime.now()
     stamp = mktime(now.timetuple())
     self.currentTime = format_date_time(stamp)
 
-    lastModified = datetime.fromtimestamp(os.path.getmtime(path + "HelloWorld.html"))
+    lastModified = datetime.fromtimestamp(os.path.getmtime(path + "/helloWorld.html"))
     stamp = mktime(lastModified.timetuple())
     self.lastMod = format_date_time(stamp)
 
     # Get the size of the file
-    self.length = str(os.path.getsize(path + "HelloWorld.html"))
+    self.length = str(os.path.getsize(path + "/helloWorld.html"))
 
     # Get the type of the file
     self.type = 'text/html'

@@ -176,7 +176,7 @@ def main(args = None):
   HTTPBuilder = HTTPObject()
 
   # Get the contents and metadata of the requested file, print http object output
-  # HTTPBuilder.getFileData(commandInput.args.directory)
+  HTTPBuilder.getFileData(commandInput.args.directory)
   # testReq = HTTPBuilder.makeRequest("test", "test", "test", "test", "test", "test", "test", "test", "test", "test",)
   testRes = HTTPBuilder.makeResponse(200)
 

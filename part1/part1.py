@@ -179,14 +179,14 @@ def main(args = None):
   interface = Interface(commandInput.args.port, commandInput.args.directory)
 
   # Search for port numbers
-  output = interface.evaluatePort()
-  # Check path
-  output = interface.evaluatePath()
+  # output = interface.evaluatePort()
+  # # Check path
+  # output = interface.evaluatePath()
 
   HTTPBuilder = HTTPObject()
 
   # Get the contents and metadata of the requested file, print http object output
-  HTTPBuilder.getFileData(commandInput.args.directory)
+  # HTTPBuilder.getFileData(commandInput.args.directory)
   # testReq = HTTPBuilder.makeRequest("test", "test", "test", "test", "test", "test", "test", "test", "test", "test",)
   testRes = HTTPBuilder.makeResponseSmall(200)
 

@@ -87,7 +87,7 @@ Connection: {connection}\r
   def getFileData(self, path):
     # Get and store the file TODO, break up into chunks
     try:
-      file = open('part1' + "/helloWorld.html", "r")
+      file = open(path + "/helloWorld.html", "r")
       self.body = file.read()
       file.close()
     except:

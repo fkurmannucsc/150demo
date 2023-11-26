@@ -169,9 +169,9 @@ def main(args = None):
   interface = Interface(commandInput.args.port, commandInput.args.directory)
 
   # Search for port numbers
-  # output = interface.evaluatePort()
+  output = interface.evaluatePort()
   # # Check path
-  # output = interface.evaluatePath()
+  output = interface.evaluatePath()
 
   HTTPBuilder = HTTPObject()
 

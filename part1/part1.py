@@ -45,6 +45,8 @@ class HTTPObject():
     self.currentTime = 'Tue, 19 Feb 2002 11:24:55 GMT'
     self.lastMod = 'Tue, 19 Feb 2002 18:06:55 GMT'
     self.length = '0'
+    self.type = 'text/html'
+    self.body= ''
 
   """ Function to make the http req object. """
   def makeRequest(self, file, host, agent, accept, language, encoding, charset, keepAlive, connection, body):
@@ -72,25 +74,13 @@ Connection: {connection}\r
 
   """ Function to make the http res object. """
   def makeResponse(self, code):
-    templateResponse = '''HTTP/1.1 {code} {description}\r\n
-Content-Length: {length}\r\n
-Content-Type: {type}\r
-Date: {date}\r
-Last-Modified: {lastMod}\r
-
-
-\r
-{body}'''.format(code=code, 
+    templateResponse = '''HTTP/1.1 {code} {description}\r\nContent-Length: {length}\r\nContent-Type: {type}\r\nDate: {date}\r\nLast-Modified: {lastMod}\r\n\r\n{body}'''.format(code=code, 
                 description=self.responses[code], 
                 date=self.currentTime, 
                 lastMod=self.lastMod,
                 length=self.length,
                 type=self.type,
                 body=self.body)
-    return templateResponse
-  
-  def makeResponseSmall(self, code):
-    templateResponse = '''HTTP/1.1 200 OK\r\n'''
     return templateResponse
   
   """ Function to get data and metadata to fill http response object with a file's content. """
@@ -188,7 +178,7 @@ def main(args = None):
   # Get the contents and metadata of the requested file, print http object output
   # HTTPBuilder.getFileData(commandInput.args.directory)
   # testReq = HTTPBuilder.makeRequest("test", "test", "test", "test", "test", "test", "test", "test", "test", "test",)
-  testRes = HTTPBuilder.makeResponseSmall(200)
+  testRes = HTTPBuilder.makeResponse(200)
 
   # print(testReq)
   sys.stdout.write(testRes)

@@ -71,12 +71,14 @@ Connection: {connection}\r
     return templateRequest
 
   """ Function to make the http res object. """
-  def makeResponse(self, code, server):
+  def makeResponse(self, code):
     templateResponse = '''HTTP/1.1 {code} {description}\r\n
 Content-Length: {length}\r\n
-Last-Modified: {lastMod}\r
-Date: {date}\r
 Content-Type: {type}\r
+Date: {date}\r
+Last-Modified: {lastMod}\r
+
+
 \r
 {body}'''.format(code=code, 
                 description=self.responses[code], 
@@ -87,28 +89,48 @@ Content-Type: {type}\r
                 body=self.body)
     return templateResponse
   
+  def makeResponseSmall(self, code):
+    templateResponse = '''HTTP/1.1 200 OK\r\n'''
+    return templateResponse
+  
   """ Function to get data and metadata to fill http response object with a file's content. """
   def getFileData(self, path):
     # Get and store the file TODO, break up into chunks
-    file = open('part1/' + "helloWorld.html", "r")
-    self.body = file.read()
-    file.close()
+    try:
+      file = open('part1' + "/helloWorld.html", "r")
+      self.body = file.read()
+      file.close()
+    except:
+      print("Error opening requested file.", file=sys.stderr)
+      sys.exit(1)
 
-    newFile = open(path + "/helloWorld.html", "w")
-    newFile.write(self.body)
-    newFile.close()
+    try:
+      newFile = open(path + "/helloWorld.html", "w")
+      newFile.write(self.body)
+      newFile.close()
+    except:
+      print("Error opening requested file.", file=sys.stderr)
+      sys.exit(1)
 
     # Get current time and last modified times, translate them to HTTP format
     now = datetime.now()
     stamp = mktime(now.timetuple())
     self.currentTime = format_date_time(stamp)
 
-    lastModified = datetime.fromtimestamp(os.path.getmtime(path + "/helloWorld.html"))
-    stamp = mktime(lastModified.timetuple())
-    self.lastMod = format_date_time(stamp)
+    try:
+      lastModified = datetime.fromtimestamp(os.path.getmtime(path + "/helloWorld.html"))
+      stamp = mktime(lastModified.timetuple())
+      self.lastMod = format_date_time(stamp)
+    except:
+      print("Error opening requested file.", file=sys.stderr)
+      sys.exit(1)
 
     # Get the size of the file
-    self.length = str(os.path.getsize(path + "/helloWorld.html"))
+    try:
+      self.length = str(os.path.getsize(path + "/helloWorld.html"))
+    except:
+      print("Error opening requested file.", file=sys.stderr)
+      sys.exit(1)
 
     # Get the type of the file
     self.type = 'text/html'
@@ -139,51 +161,6 @@ class Interface():
       print('Directory {directory} does not exist.'.format(directory=self.directory), file=sys.stderr)
       sys.exit(1)
     return 0
-  
-  ''' Socket function, experimental, tbd in part 2. '''
-  # def socket(self):
-  #   try: 
-  #     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-  #     print ("Socket successfully created")
-  #   except socket.error as err: 
-  #     print ("socket creation failed with error %s" %(err))
-    
-  #   # default port for socket 
-  #   port = 80
-    
-  #   try: 
-  #     host_ip = socket.gethostbyname('www.google.com') 
-  #   except socket.gaierror: 
-    
-  #     # this means could not resolve the host 
-  #     print ("there was an error resolving the host")
-  #     sys.exit() 
-    
-  #   # connecting to the server 
-  #   s.connect((host_ip, port)) 
-    
-  #   print ("the socket has successfully connected to google") 
-  
-  ''' Function that handles packend server work including getting the file or trying to.
-  Returns the integer status code to return in the HTTP response. '''
-  # def serve(self):
-  #   # Check for request type
-  #   if REQUESTYPE not "GET":
-  #     return 501
-    
-  #   # Check for correct HTTP version
-  #   if VERSION not "HTTP/1.1":
-  #     return 505
-    
-  #   # Look for file
-  #   if FILEFOUND:
-
-
-  #     return 200
-
-  #   else:
-  #     return 404
-  #   pass
 
 """ Main method, parse input and call evaluation function. """
 def main(args = None):
@@ -211,7 +188,7 @@ def main(args = None):
   # Get the contents and metadata of the requested file, print http object output
   HTTPBuilder.getFileData(commandInput.args.directory)
   # testReq = HTTPBuilder.makeRequest("test", "test", "test", "test", "test", "test", "test", "test", "test", "test",)
-  testRes = HTTPBuilder.makeResponse(200, 'FabriceKurmann')
+  testRes = HTTPBuilder.makeResponseSmall(200)
 
   # print(testReq)
   print(testRes)

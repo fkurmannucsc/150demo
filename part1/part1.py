@@ -90,7 +90,7 @@ Last-Modified: {lastMod}\r
     return templateResponse
   
   def makeResponseSmall(self, code):
-    templateResponse = '''HTTP/1.1 200 OK\r\n'''
+    templateResponse = 'HTTP/1.1 200 OK\r'
     return templateResponse
   
   """ Function to get data and metadata to fill http response object with a file's content. """

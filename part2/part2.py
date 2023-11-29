@@ -2,6 +2,8 @@ import argparse
 import socket
 import sys 
 import os
+import re
+import csv
 
 from wsgiref.handlers import format_date_time
 from datetime import datetime
@@ -27,104 +29,6 @@ class CommandLine():
     else :
       self.args = self.parser.parse_args(inOpts)
 
-""" CSV class responsible for handling every task associated with the CSV log. """
-class CSV():
-  def __init__(self):
-    pass
-
-""" HTTP class responsible for reading and writing the HTTP headers. """
-class HTTPObject():
-  def __init__(self):
-    self.responses = {
-      200: 'OK', 
-      404: 'File Not Found', 
-      501: 'Not Implemented', 
-      505: 'HTTP Version Not Supported',
-      'test': 'check'
-    }
-    self.currentTime = 'Tue, 19 Feb 2002 11:24:55 GMT'
-    self.lastMod = 'Tue, 19 Feb 2002 18:06:55 GMT'
-    self.length = '0'
-
-  """ Function to make the http req object. """
-  def makeRequest(self, file, host, agent, accept, language, encoding, charset, keepAlive, connection, body):
-    templateRequest = '''GET /{file} HTTP/1.1\r
-Host: {host}\r
-User-Agent: {agent}\r
-Accept: {accept}\r
-Accept-Language: {language}\r
-Accept-Encoding: {encoding}\r
-Accept-Charset: {charset}\r
-Keep-Alive: {keepAlive}\r
-Connection: {connection}\r
-\r
-{body}'''.format(file=file, 
-                  host=host,
-                  agent=agent,
-                  accept=accept,
-                  language=language,
-                  encoding=encoding,
-                  charset=charset,
-                  keepAlive=keepAlive,
-                  connection=connection,
-                  body=body)
-    return templateRequest
-
-  """ Function to make the http res object. """
-  def makeResponse(self, code, server):
-    templateResponse = '''HTTP/1.1 {code} {description}\r\n
-Content-Length: {length}\r\n
-Last-Modified: {lastMod}\r
-Date: {date}\r
-Content-Type: {type}\r
-\r
-{body}'''.format(code=code, 
-                description=self.responses[code], 
-                date=self.currentTime, 
-                lastMod=self.lastMod,
-                length=self.length,
-                type=self.type,
-                body=self.body)
-    return templateResponse
-  
-  """ Function to get data and metadata to fill http response object with a file's content. """
-  def getFileData(self, path):
-    # Get and store the file TODO, break up into chunks
-    try:
-      file = open('part1' + "/helloWorld.html", "r")
-      self.body = file.read()
-      file.close()
-    except:
-      print("Error opening requested file.", file=sys.stderr)
-
-    try:
-      newFile = open(path + "/helloWorld.html", "w")
-      newFile.write(self.body)
-      newFile.close()
-    except:
-      print("Error opening requested file.", file=sys.stderr)
-
-    # Get current time and last modified times, translate them to HTTP format
-    now = datetime.now()
-    stamp = mktime(now.timetuple())
-    self.currentTime = format_date_time(stamp)
-
-    try:
-      lastModified = datetime.fromtimestamp(os.path.getmtime(path + "/helloWorld.html"))
-      stamp = mktime(lastModified.timetuple())
-      self.lastMod = format_date_time(stamp)
-    except:
-      print("Error opening requested file.", file=sys.stderr)
-
-    # Get the size of the file
-    try:
-      self.length = str(os.path.getsize(path + "/helloWorld.html"))
-    except:
-      print("Error opening requested file.", file=sys.stderr)
-
-    # Get the type of the file
-    self.type = 'text/html'
-
 """ Class responsible for error checking of inputs and for interacting with file system. """
 class Interface():
   def __init__(self, port, directory):
@@ -135,67 +39,267 @@ class Interface():
     if self.portNumber == 80:
       print("{port} {path}".format(port=self.portNumber, path=self.directory))
     elif (self.portNumber >= 0 and self.portNumber < 1024):
-      pass
-      # print("Well-known port number {port} entered - could cause a conflict.\n{port} {directory}".format(port=self.portNumber, directory=self.directory))
+      # pass
+      print("Well-known port number {port} entered - could cause a conflict.\n{port} {directory}".format(port=self.portNumber, directory=self.directory))
     elif (self.portNumber > 1023 and self.portNumber < 49152):
-      pass
-      # print("Registered port number {port} entered - could cause a conflict.\n{port} {directory}".format(port=self.portNumber, directory=self.directory))
+      # pass
+      print("Registered port number {port} entered - could cause a conflict.\n{port} {directory}".format(port=self.portNumber, directory=self.directory))
     else:
       print("Terminating program, port number is not allowed.", file=sys.stderr)
       sys.exit(1)
       
     return 0
   
-  def evaluatePath(self):
+  def evaluateDirectory(self):
     if not os.path.isabs(self.directory):
       print('Directory {directory} does not exist.'.format(directory=self.directory), file=sys.stderr)
       sys.exit(1)
     return 0
+
+""" Socket class. """
+class Socket():
+  def __init__(self, port, path):
+    self.responseOptions = {
+      200: 'OK', 
+      404: 'File Not Found', 
+      501: 'Not Implemented', 
+      505: 'HTTP Version Not Supported',
+    }
+
+    # Attributes for HTTP response
+    now = datetime.now()
+    stamp = mktime(now.timetuple())
+    self.currentTime = format_date_time(stamp)
+    self.lastMod = ''
+    self.length = '0'
+    self.fileType = ''
+    self.body= ''
+
+    # User inputted values
+    self.port = int(port)
+    self.address = '0.0.0.0'
+    self.path = path
+    self.file = ''
+    self.filePath = ''
+
+    # Tracking for output files
+    self.txtResponses = []
+    self.csvRows = []
+
+  """ Helper function to write the CSV file. """
+  def writeCSV(self, metadata): 
+    metadata.insert(6,"Bytes sent:")
+    metadata.insert(4,"Requested URL")
+    metadata.insert(0,"4-Tuple:")
+    metadata.insert(0,"Client request served")
+    print(metadata)
+    self.csvRows.append(metadata)
+         
+    csvFile = open(self.path + 'fkurmannSocketOutput.csv', 'w') 
+    csvWriter = csv.writer(csvFile)  
+    csvWriter.writerows(self.csvRows) 
+    
+    print("Wrote CSV")
+    csvFile.close()
+
+  """ Helper function to write the text file. """
+  def writeTXT(self): 
+    txtFile = open(self.path + 'fkurmannHTTPResponses.txt', 'w') 
+    for item in self.txtResponses:
+      txtFile.write(item)
+
+    print("Wrote txt" + self.path)
+    txtFile.close()
+
+  """ Function to make the http res object. """
+  def makeResponse(self, code):
+    templateResponse = '''HTTP/1.1 {code} {description}\r\nContent-Length: {length}\r\nContent-Type: {type}\r\nDate: {date}\r\nLast-Modified: {lastMod}\r\nConnection: close\r\n\r\n'''.format(code=code, 
+              description=self.responseOptions[code], 
+              date=self.currentTime, 
+              lastMod=self.lastMod,
+              length=self.length,
+              type=self.fileType)
+    return templateResponse
   
-  ''' Socket function, experimental, tbd in part 2. '''
-  # def socket(self):
-  #   try: 
-  #     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) 
-  #     print ("Socket successfully created")
-  #   except socket.error as err: 
-  #     print ("socket creation failed with error %s" %(err))
-    
-  #   # default port for socket 
-  #   port = 80
-    
-  #   try: 
-  #     host_ip = socket.gethostbyname('www.google.com') 
-  #   except socket.gaierror: 
-    
-  #     # this means could not resolve the host 
-  #     print ("there was an error resolving the host")
-  #     sys.exit() 
-    
-  #   # connecting to the server 
-  #   s.connect((host_ip, port)) 
-    
-  #   print ("the socket has successfully connected to google") 
-  
-  ''' Function that handles packend server work including getting the file or trying to.
+  """ Function to get data and metadata to fill http response object with a file's content. """
+  def getFileData(self):
+    # Locate the file in filesystem
+    # print(self.filePath)
+
+    # Get the type of the file
+    try:
+      self.makeFileType()
+    except:
+      pass
+
+    # Get current time and last modified times, translate them to HTTP format
+    now = datetime.now()
+    stamp = mktime(now.timetuple())
+    self.currentTime = format_date_time(stamp)
+
+    try:
+      lastModified = datetime.fromtimestamp(os.path.getmtime(self.filePath))
+      stamp = mktime(lastModified.timetuple())
+      self.lastMod = format_date_time(stamp)
+    except:
+      pass
+
+    # Get the size of the file
+    try:
+      self.length = str(os.path.getsize(self.filePath))
+    except:
+      pass
+
+    try:
+      if int(self.length) < 1000:
+        # Get and store the text file
+        file = open(self.filePath, "r")
+        self.body = file.read()
+        file.close()
+        return 0
+      else:
+        # Get and store the non text file
+        file = open(self.filePath, "rb")
+        self.body = file.read()
+        file.close()
+        return 1
+    except:
+      return 0
+
+  ''' Function that handles backend server work including getting the file or trying to.
   Returns the integer status code to return in the HTTP response. '''
-  # def serve(self):
-  #   # Check for request type
-  #   if REQUESTYPE not "GET":
-  #     return 501
+  def runSocket(self):
+    # Open a connection socket
+    # print(self.address, self.port)
+    serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    serverSocket.bind(('', self.port))
+    # print(serverSocket.getsockname())
+    serverSocket.listen(1)
+    print('Welcome socket created: {IP}, {port}'.format(IP=self.address, port=self.port))
     
-  #   # Check for correct HTTP version
-  #   if VERSION not "HTTP/1.1":
-  #     return 505
+    while True:
+       # Reset everything
+      self.lastMod = ''
+      self.length = '0'
+      self.fileType = ''
+      self.body= ''
+      
+      self.file = ''
+      self.filePath = ''
+
+      # Open connection
+      connectionSocket, addr = serverSocket.accept()
+      # print(connectionSocket, addr)
+      incomingMessage = connectionSocket.recv(1024).decode()
+      print('Connection socket created: {IP}, {port}'.format(IP=addr[0], port=addr[1]))
+
+      # Serve the client
+      code = self.interpretRequest(incomingMessage)
+
+      transferType = 0
+      
+      # Get file data if file is found
+      if code == 200:
+        transferType = self.getFileData()
+      
+      returnMessage = self.makeResponse(code)
+
+      print(self.body[:20])
+
+      # Binary file transfer
+      if transferType == 1:
+        connectionSocket.send(returnMessage.encode() + self.body)
+        
+      # Text file transfer
+      else:
+        connectionSocket.send(returnMessage.encode() + self.body.encode())
+
+      connectionSocket.close()
+      print('Connection to {IP}, {port} is now closed.'.format(IP=addr[0], port=addr[1]))
+
+      # Add metadata for CSV file and response for txt file, then update those files
+      self.txtResponses.append(returnMessage)
+      self.writeTXT()
+      self.writeCSV([self.address, self.port, addr[0], addr[1], self.file, "HTTP/1.1" + " " + str(code) + " " + self.responseOptions[code], self.length])
+      
+  """ Extracts crucial information form the request and returns the 200 code to send back. """
+  def interpretRequest(self, request):
+    print(str(request))
+    # Get essential information from request
+    requestType = (re.search('.*/.* HTTP/.\..', str(request))).group()
+    requestType = requestType.split(' ')
+    method = requestType[0]
+    version = requestType[2]
+    body = requestType[1][1:]
+    self.file = body
+
+    # Check for request type
+    if method != "GET":
+      return 501
+    # Check for correct HTTP version
+    if version != "HTTP/1.1":
+      return 505
+    # Check if requested path is valid
+    try: 
+      self.makePath()
+    except:
+      print("case1")
+      return 404
+    if self.evaluatePath() == 1:
+      print("case2")
+      return 404
     
-  #   # Look for file
-  #   if FILEFOUND:
-
-
-  #     return 200
-
-  #   else:
-  #     return 404
-  #   pass
+    # Get requested file
+    else:
+      return 200
+  
+  """ Helper method to check that file is in filesystem. """
+  def evaluatePath(self):
+    try:
+      print(self.filePath)
+      file = open(self.filePath, "rb")
+      file.close()
+      return 0
+    except:
+      print("Error opening requested file.", file=sys.stderr)
+      return 1
+  
+  """ Helper function to locate files in the file system and make the search path. """
+  def makePath(self):
+    if self.file == 'favicon.ico':
+      return self.filePath
+    directory = {
+      'helloWorld.html':'/',
+      'filesystem.zip':'/filesystem/',
+      'README.docx':'/filesystem/',
+      'dog1.jpg':'/filesystem/HTMLfile_with_local_images/',
+      'dog2.jpg':'/filesystem/HTMLfile_with_local_images/',
+      'Example1.html':'/filesystem/HTMLfile_with_local_images/',
+      'Example2.html':'/filesystem/HTMLfile_with_online_images/',
+      '10MB.zip':'/filesystem/large_file/',
+      'loon.jpg':'/filesystem/randomBinaryFiles/'
+    }
+    self.filePath = self.path + directory[self.file] + self.file
+    return self.filePath
+  
+  """ Helper function to return the correct file type for response header. """
+  def makeFileType(self):
+    directory = {
+      '.csv':'text/csv',
+      '.png':'image/png',
+      '.jpg':'image/jpeg',
+      '.gif':'image/gif',
+      '.zip':'application/zip',
+      '.txt':'text/plain',
+      '.html':'text/html',
+      '.doc':'application/msword',
+      '.docx':'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    }
+    fileExtension = re.search('\..*', self.file).group()
+    if fileExtension == '.ico':
+      return self.fileType
+    self.fileType = directory[fileExtension]
+    return self.fileType
 
 """ Main method, parse input and call evaluation function. """
 def main(args = None):
@@ -215,18 +319,19 @@ def main(args = None):
 
   # Search for port numbers
   output = interface.evaluatePort()
-  # Check path
-  output = interface.evaluatePath()
+  # Check directory
+  output += interface.evaluateDirectory()
 
-  HTTPBuilder = HTTPObject()
+  # Should never occur, should stop before this check
+  if output != 0:
+    print("Port and/or directories invalid, stopping.")
+    sys.exit(1)
+
+  # Start the server
+  server = Socket(commandInput.args.port, commandInput.args.directory)
 
   # Get the contents and metadata of the requested file, print http object output
-  HTTPBuilder.getFileData(commandInput.args.directory)
-  # testReq = HTTPBuilder.makeRequest("test", "test", "test", "test", "test", "test", "test", "test", "test", "test",)
-  testRes = HTTPBuilder.makeResponse(200, 'FabriceKurmann')
-
-  # print(testReq)
-  print(testRes)
+  server.runSocket()
   
   return 0
 

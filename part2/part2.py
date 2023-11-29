@@ -77,7 +77,7 @@ class Socket():
 
     # User inputted values
     self.port = int(port)
-    self.address = '0.0.0.0'
+    self.address = '127.0.0.1'
     self.path = path
     self.file = ''
     self.filePath = ''
@@ -95,7 +95,7 @@ class Socket():
     print(metadata)
     self.csvRows.append(metadata)
          
-    csvFile = open(self.path + 'fkurmannSocketOutput.csv', 'w') 
+    csvFile = open(self.path + '/fkurmannSocketOutput.csv', 'w') 
     csvWriter = csv.writer(csvFile)  
     csvWriter.writerows(self.csvRows) 
     
@@ -104,7 +104,7 @@ class Socket():
 
   """ Helper function to write the text file. """
   def writeTXT(self): 
-    txtFile = open(self.path + 'fkurmannHTTPResponses.txt', 'w') 
+    txtFile = open(self.path + '/fkurmannHTTPResponses.txt', 'w') 
     for item in self.txtResponses:
       txtFile.write(item)
 
@@ -172,7 +172,7 @@ class Socket():
     # Open a connection socket
     # print(self.address, self.port)
     serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    serverSocket.bind(('', self.port))
+    serverSocket.bind((self.address, self.port))
     # print(serverSocket.getsockname())
     serverSocket.listen(1)
     print('Welcome socket created: {IP}, {port}'.format(IP=self.address, port=self.port))
@@ -221,6 +221,7 @@ class Socket():
       self.txtResponses.append(returnMessage)
       self.writeTXT()
       self.writeCSV([self.address, self.port, addr[0], addr[1], self.file, "HTTP/1.1" + " " + str(code) + " " + self.responseOptions[code], self.length])
+      # break
       
   """ Extracts crucial information form the request and returns the 200 code to send back. """
   def interpretRequest(self, request):
@@ -332,6 +333,8 @@ def main(args = None):
 
   # Get the contents and metadata of the requested file, print http object output
   server.runSocket()
+
+  print("Back in main, ending")
   
   return 0
 

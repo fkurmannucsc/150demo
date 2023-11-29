@@ -193,18 +193,25 @@ class Socket():
       incomingMessage = connectionSocket.recv(1024).decode()
       print('Connection socket created: {IP}, {port}'.format(IP=addr[0], port=addr[1]))
 
-      # Serve the client
-      code = self.interpretRequest(incomingMessage)
+      # Serve the client, malformed requests return 505
+      try:
+        code = self.interpretRequest(incomingMessage)
+      except:
+        code = 505
+
+      # Exit condition
+      if self.file == "STOP":
+        connectionSocket.close()
+        break
 
       transferType = 0
-      
       # Get file data if file is found
       if code == 200:
         transferType = self.getFileData()
       
       returnMessage = self.makeResponse(code)
 
-      print(self.body[:20])
+      # print(self.body[:20])
 
       # Binary file transfer
       if transferType == 1:
@@ -221,11 +228,12 @@ class Socket():
       self.txtResponses.append(returnMessage)
       self.writeTXT()
       self.writeCSV([self.address, self.port, addr[0], addr[1], self.file, "HTTP/1.1" + " " + str(code) + " " + self.responseOptions[code], self.length])
-      # break
+    
+    serverSocket.close()
       
   """ Extracts crucial information form the request and returns the 200 code to send back. """
   def interpretRequest(self, request):
-    print(str(request))
+    # print(str(request))
     # Get essential information from request
     requestType = (re.search('.*/.* HTTP/.\..', str(request))).group()
     requestType = requestType.split(' ')
@@ -244,12 +252,9 @@ class Socket():
     try: 
       self.makePath()
     except:
-      print("case1")
       return 404
     if self.evaluatePath() == 1:
-      print("case2")
       return 404
-    
     # Get requested file
     else:
       return 200
@@ -333,9 +338,6 @@ def main(args = None):
 
   # Get the contents and metadata of the requested file, print http object output
   server.runSocket()
-
-  print("Back in main, ending")
-  
   return 0
 
 if __name__ == "__main__":

@@ -1,0 +1,7 @@
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,52477,Requested URL,Example1.html,HTTP/1.1 200 OK,Bytes sent:,410
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,52478,Requested URL,dog1.jpg,HTTP/1.1 200 OK,Bytes sent:,41569
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,52479,Requested URL,dog2.jpg,HTTP/1.1 200 OK,Bytes sent:,28522
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,52521,Requested URL,Example1.html,HTTP/1.1 200 OK,Bytes sent:,410
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,52522,Requested URL,dog1.jpg,HTTP/1.1 200 OK,Bytes sent:,41569
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,52523,Requested URL,dog2.jpg,HTTP/1.1 200 OK,Bytes sent:,28522
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,52524,Requested URL,favicon.ico,HTTP/1.1 404 File Not Found,Bytes sent:,0

@@ -91,7 +91,7 @@ Connection: {connection}\r
       self.body = file.read()
       file.close()
     except:
-      print("Error opening requested file.", file=sys.stderr)
+      print("Error opening requested file 1.", file=sys.stderr)
       sys.exit(1)
 
     try:
@@ -99,7 +99,7 @@ Connection: {connection}\r
       newFile.write(self.body)
       newFile.close()
     except:
-      print("Error opening requested file.", file=sys.stderr)
+      print("Error opening requested file 2.", file=sys.stderr)
       sys.exit(1)
 
     # Get current time and last modified times, translate them to HTTP format
@@ -112,14 +112,14 @@ Connection: {connection}\r
       stamp = mktime(lastModified.timetuple())
       self.lastMod = format_date_time(stamp)
     except:
-      print("Error opening requested file.", file=sys.stderr)
+      print("Error opening requested file 3.", file=sys.stderr)
       sys.exit(1)
 
     # Get the size of the file
     try:
       self.length = str(os.path.getsize(path + "/helloWorld.html"))
     except:
-      print("Error opening requested file.", file=sys.stderr)
+      print("Error opening requested file 4.", file=sys.stderr)
       sys.exit(1)
 
     # Get the type of the file

@@ -21,7 +21,7 @@ class CommandLine():
       usage = 'python3 part0.py -p [PORT] -d [DIRECTORY]' 
     )
     
-    self.parser.add_argument('-p', '--port', type=int, default=80, action = 'store', help='Port number')
+    self.parser.add_argument('-p', '--port', type=int, action = 'store', help='Port number')
     self.parser.add_argument('-d', '--directory', action = 'store', help='Absolute path to directory')
 
     if inOpts is None :
@@ -51,7 +51,7 @@ class Interface():
     return 0
   
   def evaluateDirectory(self):
-    if not os.path.isabs(self.directory):
+    if not os.path.isabs(self.directory) or not os.path.isdir(self.directory):
       print('Directory {directory} does not exist.'.format(directory=self.directory), file=sys.stderr)
       sys.exit(1)
     return 0
@@ -59,12 +59,7 @@ class Interface():
 """ Socket class. """
 class Socket():
   def __init__(self, port, path):
-    self.responseOptions = {
-      200: 'OK', 
-      404: 'File Not Found', 
-      501: 'Not Implemented', 
-      505: 'HTTP Version Not Supported',
-    }
+    self.responseOptions = {200: 'OK', 404: 'File Not Found', 501: 'Not Implemented', 505: 'HTTP Version Not Supported'}
 
     # Attributes for HTTP response
     now = datetime.now()
@@ -92,14 +87,12 @@ class Socket():
     metadata.insert(4,"Requested URL")
     metadata.insert(0,"4-Tuple:")
     metadata.insert(0,"Client request served")
-    print(metadata)
+    # print(metadata)
     self.csvRows.append(metadata)
          
     csvFile = open(self.path + '/fkurmannSocketOutput.csv', 'w') 
     csvWriter = csv.writer(csvFile)  
     csvWriter.writerows(self.csvRows) 
-    
-    print("Wrote CSV")
     csvFile.close()
 
   """ Helper function to write the text file. """
@@ -107,8 +100,6 @@ class Socket():
     txtFile = open(self.path + '/fkurmannHTTPResponses.txt', 'w') 
     for item in self.txtResponses:
       txtFile.write(item)
-
-    print("Wrote txt" + self.path)
     txtFile.close()
 
   """ Function to make the http res object. """
@@ -150,6 +141,7 @@ class Socket():
     except:
       pass
 
+    # Get the body of the file
     try:
       if int(self.length) < 1000:
         # Get and store the text file
@@ -170,10 +162,8 @@ class Socket():
   Returns the integer status code to return in the HTTP response. '''
   def runSocket(self):
     # Open a connection socket
-    # print(self.address, self.port)
     serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     serverSocket.bind((self.address, self.port))
-    # print(serverSocket.getsockname())
     serverSocket.listen(1)
     print('Welcome socket created: {IP}, {port}'.format(IP=self.address, port=self.port))
     
@@ -183,13 +173,11 @@ class Socket():
       self.length = '0'
       self.fileType = ''
       self.body= ''
-      
       self.file = ''
       self.filePath = ''
 
       # Open connection
       connectionSocket, addr = serverSocket.accept()
-      # print(connectionSocket, addr)
       incomingMessage = connectionSocket.recv(1024).decode()
       print('Connection socket created: {IP}, {port}'.format(IP=addr[0], port=addr[1]))
 
@@ -199,8 +187,9 @@ class Socket():
       except:
         code = 505
 
-      # Exit condition
+      # Exit condition, does not respond to this, does not update txt and CSV files with this transmission.
       if self.file == "STOP":
+        print("Client requested STOP, closing server.")
         connectionSocket.close()
         break
 
@@ -210,13 +199,11 @@ class Socket():
         transferType = self.getFileData()
       
       returnMessage = self.makeResponse(code)
-
       # print(self.body[:20])
 
       # Binary file transfer
       if transferType == 1:
         connectionSocket.send(returnMessage.encode() + self.body)
-        
       # Text file transfer
       else:
         connectionSocket.send(returnMessage.encode() + self.body.encode())
@@ -226,8 +213,11 @@ class Socket():
 
       # Add metadata for CSV file and response for txt file, then update those files
       self.txtResponses.append(returnMessage)
-      self.writeTXT()
-      self.writeCSV([self.address, self.port, addr[0], addr[1], self.file, "HTTP/1.1" + " " + str(code) + " " + self.responseOptions[code], self.length])
+      try:
+        self.writeTXT()
+        self.writeCSV([self.address, self.port, addr[0], addr[1], self.file, "HTTP/1.1" + " " + str(code) + " " + self.responseOptions[code], self.length])
+      except:
+        print("Error opening output txt and csv files.", file=sys.stderr)
     
     serverSocket.close()
       
@@ -262,12 +252,10 @@ class Socket():
   """ Helper method to check that file is in filesystem. """
   def evaluatePath(self):
     try:
-      print(self.filePath)
       file = open(self.filePath, "rb")
       file.close()
       return 0
     except:
-      print("Error opening requested file.", file=sys.stderr)
       return 1
   
   """ Helper function to locate files in the file system and make the search path. """
@@ -323,14 +311,15 @@ def main(args = None):
   # Greate Interface object
   interface = Interface(commandInput.args.port, commandInput.args.directory)
 
-  # Search for port numbers
-  output = interface.evaluatePort()
   # Check directory
-  output += interface.evaluateDirectory()
+  output = interface.evaluateDirectory()
+  # Search for port numbers
+  output += interface.evaluatePort()
+  
 
   # Should never occur, should stop before this check
   if output != 0:
-    print("Port and/or directories invalid, stopping.")
+    print("Port and/or directories invalid.", file=sys.stderr)
     sys.exit(1)
 
   # Start the server

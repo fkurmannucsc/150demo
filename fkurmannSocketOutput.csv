@@ -1,1 +1,8 @@
-Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,59143,Requested URL,helloWorld.html,HTTP/1.1 200 OK,Bytes sent:,217
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,59418,Requested URL,helloWorld.py,HTTP/1.1 404 File Not Found,Bytes sent:,0
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,59419,Requested URL,helloWorld.html,HTTP/1.1 200 OK,Bytes sent:,217
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,59421,Requested URL,favicon.ico,HTTP/1.1 404 File Not Found,Bytes sent:,0
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,59423,Requested URL,10MB.zip,HTTP/1.1 200 OK,Bytes sent:,10485760
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,59425,Requested URL,loon.jpg,HTTP/1.1 200 OK,Bytes sent:,163321
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,59427,Requested URL,Example1.html,HTTP/1.1 200 OK,Bytes sent:,410
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,59429,Requested URL,dog1.jpg,HTTP/1.1 200 OK,Bytes sent:,41569
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,59431,Requested URL,dog2.jpg,HTTP/1.1 200 OK,Bytes sent:,28522

@@ -4,6 +4,8 @@ import sys
 import os
 import re
 import csv
+import shutil # To copy filesystem directory
+
 
 from wsgiref.handlers import format_date_time
 from datetime import datetime
@@ -163,7 +165,12 @@ class Socket():
   def runSocket(self):
     # Open a connection socket
     serverSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    serverSocket.bind((self.address, self.port))
+    try:
+      serverSocket.bind((self.address, self.port))
+    except:
+      print("Error, port {port} could not be connected to.".format(port=self.port), file=sys.stderr)
+      sys.exit(1)
+    
     serverSocket.listen(1)
     print('Welcome socket created: {IP}, {port}'.format(IP=self.address, port=self.port))
     
@@ -199,6 +206,7 @@ class Socket():
         transferType = self.getFileData()
       
       returnMessage = self.makeResponse(code)
+      print(returnMessage)
       # print(self.body[:20])
 
       # Binary file transfer
@@ -321,6 +329,20 @@ def main(args = None):
   if output != 0:
     print("Port and/or directories invalid.", file=sys.stderr)
     sys.exit(1)
+
+  # Copy filesystem into the desired directory
+  # script_directory = (os.path.dirname(os.path.abspath(sys.argv[0])))[:-5]
+  # print(script_directory)
+  # source_dir = script_directory + "filesystem"
+  # destination_dir = commandInput.args.directory + "/"
+  # source_dir = 'C:\\Users\\fabricekurmann\\Desktop\\CS\\School\\CSE150\\finalProject\\fkurmann\\filesystem'
+  # destination_dir = 'C:\\Users\\fabricekurmann\\Desktop\\CS\\School\\CSE150\\finalProject\\fkurmann\\part0'
+  # print(source_dir, destination_dir)
+  # # Either copy the filesystem or it already lives in the requested directory and continue.
+  # try:
+  #   shutil.copytree(source_dir, destination_dir)
+  # except:
+  #   pass
 
   # Start the server
   server = Socket(commandInput.args.port, commandInput.args.directory)

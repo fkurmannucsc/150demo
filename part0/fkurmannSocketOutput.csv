@@ -1,0 +1,2 @@
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,57985,Requested URL,dog1.jpg,HTTP/1.1 404 File Not Found,Bytes sent:,0
+Client request served,4-Tuple:,127.0.0.1,8080,127.0.0.1,57986,Requested URL,,HTTP/1.1 505 HTTP Version Not Supported,Bytes sent:,0
